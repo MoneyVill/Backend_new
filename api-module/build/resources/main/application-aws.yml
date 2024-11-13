@@ -1,0 +1,13 @@
+cloud:
+  aws:
+    s3:
+      bucket: {S3 버킷 이름}
+      credentials:
+        access-key: {액세스 키}
+        secret-key: {시크릿 키}
+      region: {AWS 리전}
+      static: {정적 리소스 경로}
+    stack:
+      auto: false
+    cloud-front:
+      domain: {CloudFront 도메인}

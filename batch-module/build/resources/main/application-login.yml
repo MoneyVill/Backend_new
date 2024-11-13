@@ -1,0 +1,7 @@
+spring:
+  security:
+    securityKey: "dddsdas3rr313434112"
+    jwt:
+      header: Authorization
+      secret: dsar2341343rtwfdsdfs
+      token-validity-in-seconds: 2592000
