@@ -26,6 +26,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/teacher")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TeacherController {
 
     private final TeacherService teacherService;
@@ -38,22 +39,15 @@ public class TeacherController {
      * @param requestDto
      * @return id
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<HttpStatus> teacherSignUp(@Valid @RequestPart("dto")  TeacherSignUpRequestDto requestDto,
-                                                    @RequestPart("file") MultipartFile file) throws IOException {
-        teacherService.signUp(requestDto, file);
-        return ResponseEntity.ok(HttpStatus.OK);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> teacherSignUp(@Valid @RequestBody TeacherSignUpRequestDto requestDto) {
+        try {
+            teacherService.signUp(requestDto); // 파일 인수를 제거한 signUp 메서드 호출
+            return ResponseEntity.ok(HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace(); // 로그로 예외 기록
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 에러 반환
+        }
     }
 
-    /**
-     * 회원가입 후 교사인증서 반려 당했을 때 or 다시 교사인증서를 보낼 때
-     * @param request
-     * @param file
-     * @return ok
-     */
-    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<HttpStatus> certifiedImage(HttpServletRequest request, @RequestPart("file") MultipartFile file) {
-        teacherService.certifiedImage(request, file);
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
 }

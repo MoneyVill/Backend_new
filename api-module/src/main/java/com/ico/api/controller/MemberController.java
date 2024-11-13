@@ -44,7 +44,7 @@ public class MemberController {
      */
     @PostMapping("/duplicated-id")
     public ResponseEntity<?> duplicated(@RequestBody Map<String, String> req) {
-        String identity = req.get("nickname");
+        String identity = req.get("identity");
         boolean isDuplicated = memberService.duplicated(identity);
         String message = isDuplicated ? "중복된 아이디입니다." : "사용가능한 아이디 입니다.";
         return new ResponseEntity<>(Map.of("isDuplicated", isDuplicated, "message", message), HttpStatus.OK);

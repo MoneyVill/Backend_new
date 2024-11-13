@@ -20,7 +20,7 @@ public interface TeacherService {
      * @param requestDto
      * @return id
      */
-    Long signUp(TeacherSignUpRequestDto requestDto, MultipartFile file) throws IOException;
+    Long signUp(TeacherSignUpRequestDto requestDto) throws IOException;
 
 
     /**

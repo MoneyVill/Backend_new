@@ -3,5 +3,5 @@ spring:
     securityKey: "dddsdas3rr313434112"
     jwt:
       header: Authorization
-      secret: dsar2341343rtwfdsdfs
+      secret: dsar2341343rtwfdsdfscdcnlw83209ediu0jdsxkcnscb8239cdsds398f7hnxk3
       token-validity-in-seconds: 2592000
