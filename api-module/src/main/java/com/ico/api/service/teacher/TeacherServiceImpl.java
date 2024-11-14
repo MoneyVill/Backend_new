@@ -52,7 +52,7 @@ public class TeacherServiceImpl implements TeacherService {
                 .identity(requestDto.getIdentity())
                 .password(requestDto.getPassword())
                 .name(requestDto.getName())
-                .status(Status.WAITING)
+                .status(Status.APPROVED)
                 .role(Role.TEACHER)
                 .build();
 
