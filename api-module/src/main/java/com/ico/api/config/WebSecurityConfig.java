@@ -88,6 +88,9 @@ public class WebSecurityConfig {
         ));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        configuration.addAllowedOriginPattern("*"); // 필요한 도메인만 허용하거나 "*"로 모든 도메인 허용
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

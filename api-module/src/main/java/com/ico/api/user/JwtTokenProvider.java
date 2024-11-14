@@ -207,8 +207,12 @@ public class JwtTokenProvider {
     public Long getNation(String token) {
         log.info("[jwt getNation] token : {}", token);
         Claims claims = getClaims(token);
+        claims.put("nation", 123);
+        log.info("[jwt getNation] claims : {}", claims);
         Object nationObj = claims.get("nation");
-        if (nationObj instanceof Number) {
+        if (nationObj == null) {
+            log.info("[jwt getNation] nationObj is null");
+        } else if (nationObj instanceof Number) {
             log.info("[jwt getNation] nationObj == Number");
             log.info("[jwt getNation] longValue : {}", ((Number) nationObj).longValue());
             return ((Number) nationObj).longValue();
@@ -216,6 +220,7 @@ public class JwtTokenProvider {
             log.info("[jwt getNation] null 반환");
             return null;
         }
+        return null;
     }
 
     /**
