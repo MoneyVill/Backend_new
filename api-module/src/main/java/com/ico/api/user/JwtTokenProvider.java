@@ -206,10 +206,12 @@ public class JwtTokenProvider {
      */
     public Long getNation(String token) {
         Claims claims = getClaims(token);
+        log.info(claims.toString());
+        log.info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         Object nationObj = claims.get("nation");
         if (nationObj == null) {
             log.info("[getNation] nationObj가 null입니다.");
-            throw new CustomException(ErrorCode.NOT_FOUND_NATION);
+//            throw new CustomException(ErrorCode.NOT_FOUND_NATION);
         }
         if (nationObj instanceof Number) {
             return ((Number) nationObj).longValue();
