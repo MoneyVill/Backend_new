@@ -1,6 +1,6 @@
 spring:
   security:
-    securityKey: "dddsdas3rr313434112"
+    securityKey: "d31qw3f43gj778kcvxxdf3343456w4ada23fsgasdas3rfr313434112"
     jwt:
       header: Authorization
       secret: dsar2341343rtwfdsdfscdcnlw83209ediu0jdsxkcnscb8239cdsds398f7hnxk3
