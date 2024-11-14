@@ -205,20 +205,14 @@ public class JwtTokenProvider {
      * @return nation
      */
     public Long getNation(String token) {
-        log.info("[jwt getNation] token : {}", token);
         Claims claims = getClaims(token);
-        claims.put("nation", 123);
-        log.info("[jwt getNation] claims : {}", claims);
         Object nationObj = claims.get("nation");
         if (nationObj == null) {
-            log.info("[jwt getNation] nationObj is null");
-        } else if (nationObj instanceof Number) {
-            log.info("[jwt getNation] nationObj == Number");
-            log.info("[jwt getNation] longValue : {}", ((Number) nationObj).longValue());
+            log.info("[getNation] nationObj가 null입니다.");
+            throw new CustomException(ErrorCode.NOT_FOUND_NATION);
+        }
+        if (nationObj instanceof Number) {
             return ((Number) nationObj).longValue();
-        } else {
-            log.info("[jwt getNation] null 반환");
-            return null;
         }
         return null;
     }
@@ -301,18 +295,26 @@ public class JwtTokenProvider {
 
                     // 새로운 토큰으로 쿠키를 갱신합니다.
                     log.info("[updateTokenCookie] 쿠키 넣기 전의 새로운 토큰 생성 : {}", newToken);
+
+                    // HttpServletResponse를 가져오고 null인지 확인
                     HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-                    log.info("[updateTokenCookie] response 생성");
-                    Cookie cookie = new Cookie("Authorization", newToken);
-                    cookie.setPath("/");
-                    cookie.setMaxAge((int) tokenValidTime / 1000);
-                    response.addCookie(cookie);
-                    log.info("[updateTokenCookie] response에 cookie 넣기 완료");
-                    log.info("[updateTokenCookie] 새로바뀐 토큰!! " + newToken);
+                    if (response != null) {
+                        // 쿠키 생성 및 응답에 추가
+                        Cookie cookie = new Cookie("Authorization", newToken);
+                        cookie.setPath("/");
+                        cookie.setMaxAge((int) tokenValidTime / 1000);
+                        response.addCookie(cookie);
+                        log.info("[updateTokenCookie] response에 cookie 넣기 완료");
+                        log.info("[updateTokenCookie] 새로바뀐 토큰!! " + newToken);
+                    } else {
+                        log.error("[updateTokenCookie] HttpServletResponse를 가져올 수 없습니다.");
+                    }
+
                     return newToken;
                 }
             }
         }
-        return  "예전 토큰!! " + oldToken;
+        return "예전 토큰!! " + oldToken;
     }
+
 }
