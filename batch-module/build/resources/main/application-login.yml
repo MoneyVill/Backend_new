@@ -1,7 +1,0 @@
-spring:
-  security:
-    securityKey: "dddsdas3rrdddsdas3rr3134341123dddsdas3rr3134341121343dddsdas3rr3134341124112"
-    jwt:
-      header: Authorization
-      secret: dsadddsdas3rr313434112r234dddsdas3rr3134341121343rtwdddsdas3rr313434112dddsdas3rr313434112fdsdfs
-      token-validity-in-seconds: 2592000
