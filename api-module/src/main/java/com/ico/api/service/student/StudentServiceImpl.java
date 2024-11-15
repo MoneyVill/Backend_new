@@ -208,7 +208,7 @@ public class StudentServiceImpl implements StudentService{
         String imgUrl = null;
         StudentJob job;
         if ((job = student.getStudentJob()) != null) {
-            imgUrl = "test";
+            imgUrl = "/assets/job/"+job.getImage();
         }
 
         return new StudentMyPageResDto().of(student, student.getNation(), student.getStudentJob(), depositAmount, investAmount, imgUrl);
