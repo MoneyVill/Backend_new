@@ -65,7 +65,9 @@ public class JobServiceImpl implements JobService{
             throw new CustomException(ErrorCode.INVALID_JOB_TOTAL);
         }
 
-        studentJob.updateJob(dto,"ㅅㄷㄴㅅ");
+        String imagePath = dto.getImage();
+        String fileName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+        studentJob.updateJob(dto,fileName);
         studentJobRepository.save(studentJob);
         log.info("[updateJob] 수정 완료");
     }
@@ -89,7 +91,7 @@ public class JobServiceImpl implements JobService{
                 restJobCount++;
             }
             String salary = Formatter.number.format(studentJob.getWage() * 30L);
-            colJobList.add(new JobAllColDto().of(studentJob, salary, "ㅅㄷㄴㅅ"));
+            colJobList.add(new JobAllColDto().of(studentJob, salary, "/assets/job/"+studentJob.getImage()));
         }
 
         return JobAllResDto.builder()
@@ -112,7 +114,7 @@ public class JobServiceImpl implements JobService{
             if (studentJob.getCount() == studentJob.getTotal())   continue;
 
             // 정원이 채워지지 않은 직업을 목록에 추가
-            resJobList.add(new JobAvailableResDto().of(studentJob, "ㅅㄷㄴㅅ"));
+            resJobList.add(new JobAvailableResDto().of(studentJob, "/assets/job/"+studentJob.getImage()));
         }
         return resJobList;
     }
@@ -130,7 +132,7 @@ public class JobServiceImpl implements JobService{
         List<StudentJob> studentJobList = studentJobRepository.findAllByNationIdOrderByTotalDesc(nationId);
         List<JobResDto> dtoList = new ArrayList<>();
         for (StudentJob studentJob : studentJobList) {
-            dtoList.add(new JobResDto().of(studentJob, "ㅅㄷㄴㅅ"));
+            dtoList.add(new JobResDto().of(studentJob, "/assets/job/"+studentJob.getImage()));
         }
         return dtoList;
     }
@@ -141,11 +143,14 @@ public class JobServiceImpl implements JobService{
         Nation nation = nationRepository.findById(nationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NATION_NOT_FOUND));
 
+        String imagePath = dto.getImage();
+        String fileName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+
         StudentJob studentJob = StudentJob.builder()
                 .nation(nation)
                 .title(dto.getTitle())
                 .detail(dto.getDetail())
-                .image("ㅅㄷㄴㅅ")
+                .image(fileName)
                 .wage(dto.getWage())
                 .creditRating(dto.getCreditRating().byteValue())
                 .total(dto.getTotal().byteValue())
