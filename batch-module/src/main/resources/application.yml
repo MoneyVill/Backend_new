@@ -1,14 +1,11 @@
-
 logging:
   level:
     root: warn
-    com.ico: info
-    com.ico.api: info
-    org.hibernate.type.descriptor.sql: trace
+    org.mongodb.driver: warn
+    org.springframework: info
 
 server:
   port: 8082
-  domain: http://127.0.0.1
   servlet:
     session:
       timeout: 1440m
@@ -16,39 +13,8 @@ server:
 
 spring:
   profiles:
-    active: local
-    group:
-      dev:
-        - dev
-      local:
-        - local
+    active: prod # 기본 활성화 프로파일
     include:
       - db
+      - mongodb
       - login
-
-  batch:
-    job:
-      names: ${job.name:NONE}
-      enabled: false
-    jdbc:
-      initialize-schema: always
-  jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    generate-ddl: true
-    hibernate:
-      # create(new table), update(add new column), none(nothing)
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-        use_sql_comments: true
-        jdbc:
-          time_zone: Asia/Seoul
-    open-in-view: false
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
-      continue-on-error: true
-

@@ -48,11 +48,11 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         // token이 없을 때
         if (token == null || token.trim().isEmpty()) {
             // 토큰이 없더라도 요청가능한 api uri(/api/teacher/** != /api/teacher)
-            if (request.getRequestURI().equals("/api/login") || request.getRequestURI().equals("/api/student")
-                    || request.getRequestURI().equals("/api/teacher") || request.getRequestURI().equals("/api/duplicated-id")
-                    || request.getRequestURI().equals("/api/teacher/phone")) {
+            if (request.getRequestURI().equals("/login") || request.getRequestURI().equals("/student")
+                    || request.getRequestURI().equals("/teacher") || request.getRequestURI().equals("/duplicated-id")
+                    || request.getRequestURI().equals("/teacher/phone")) {
                 log.info("[doFilterInternal] : 토큰이 없는 uri : {}", request.getRequestURI());
-                response.addHeader("Access-Control-Allow-Origin", "*");
+//                response.addHeader("Access-Control-Allow-Origin", "*");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -72,7 +72,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 response.setCharacterEncoding("UTF-8");
                 ErrorResponse errorResponse = new ErrorResponse("29", "토큰이 유효하지 않습니다.");
                 objectMapper.writeValue(response.getWriter(), errorResponse);
-                response.addHeader("Access-Control-Allow-Origin", "*");
+//                response.addHeader("Access-Control-Allow-Origin", "*");
                 return;
             }
             log.info("request: {}", request.getHeader("Authorization"));
@@ -96,7 +96,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             e.printStackTrace();
         }
         // HTTP 요청을 필터링한 후 다음 필터로 체인을 전달
-        response.addHeader("Access-Control-Allow-Origin", "*");
+//        response.addHeader("Access-Control-Allow-Origin", "*");
         filterChain.doFilter(request, response);
     }
 }

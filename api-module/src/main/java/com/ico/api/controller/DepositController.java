@@ -21,7 +21,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/deposit")
+@RequestMapping("/deposit")
 public class DepositController {
     private final DepositService depositService;
 

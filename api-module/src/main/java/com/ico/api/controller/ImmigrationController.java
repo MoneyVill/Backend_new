@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/immigration")
+@RequestMapping("/immigration")
 public class ImmigrationController {
 
     private final ImmigrationService immigrationService;
@@ -134,7 +134,7 @@ public class ImmigrationController {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("X-Accel-Buffering", "no");
-        httpHeaders.add("Access-Control-Allow-Origin", "*");
+        httpHeaders.add("Access-Control-Allow-Origin", "https://moneyvill-frontend.vercel.app");
         return ResponseEntity.ok().headers(httpHeaders).body(emitter);
     }
 }

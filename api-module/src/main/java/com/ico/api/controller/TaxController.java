@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/tax")
+@RequestMapping("/tax")
 public class TaxController {
 
     private final TaxService taxService;

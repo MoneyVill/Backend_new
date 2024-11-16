@@ -20,7 +20,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/invest")
+@RequestMapping("/invest")
 public class InvestController {
 
     private final InvestService investService;

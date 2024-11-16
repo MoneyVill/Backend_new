@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/coupon")
+@RequestMapping("/coupon")
 public class CouponController {
 
     private final CouponService couponService;
