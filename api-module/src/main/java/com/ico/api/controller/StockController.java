@@ -23,7 +23,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/stock")
+@RequestMapping("/api/stock")
 public class StockController {
     private final StockService stockService;
 

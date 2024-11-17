@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/interest")
+@RequestMapping("/api/interest")
 public class InterestController {
     private final InterestService interestService;
 

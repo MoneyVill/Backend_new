@@ -29,7 +29,7 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/student-product")
+@RequestMapping("/api/student-product")
 public class StudentProductController {
     private final StudentProductService studentProductService;
 

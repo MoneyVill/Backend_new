@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/rule")
+@RequestMapping("/api/rule")
 public class RuleController {
 
     private final RuleService ruleService;

@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/immigration")
+@RequestMapping("/api/immigration")
 public class ImmigrationController {
 
     private final ImmigrationService immigrationService;

@@ -22,7 +22,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/transaction")
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
