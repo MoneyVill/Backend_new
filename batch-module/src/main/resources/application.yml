@@ -3,7 +3,7 @@ spring:
   config:
     import: file:.env[.properties]
   profiles:
-    active: dev # dev or prod
+    active: prod # dev or prod
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:

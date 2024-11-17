@@ -3,7 +3,7 @@ spring:
   config:
     import: file:.env[.properties]
   profiles:
-    active: dev # dev or prod
+    active: prod # dev or prod
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
@@ -41,7 +41,7 @@ spring:
     url: jdbc:mysql://database-1.cz4eukq2qs6a.ap-northeast-2.rds.amazonaws.com:3306/moneyvill
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME_PROD}
-    password: ${$DB_PASSWORD_PROD}
+    password: ${DB_PASSWORD_PROD}
   data:
     mongodb:
       uri: ${MONGODB_SRC_PROD}
