@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/student")
+@RequestMapping("/api/student")
 public class StudentController {
 
     private final StudentService studentService;

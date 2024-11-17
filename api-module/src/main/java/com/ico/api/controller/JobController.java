@@ -31,7 +31,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/job")
+@RequestMapping("/api/job")
 public class JobController {
 
     private final JobService jobService;

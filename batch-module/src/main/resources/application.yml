@@ -1,20 +1,61 @@
-logging:
-  level:
-    root: warn
-    org.mongodb.driver: warn
-    org.springframework: info
+
+spring:
+  config:
+    import: file:.env[.properties]
+  profiles:
+    active: dev # dev or prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      max-lifetime: 300000
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      minimum-idle: 5
+#  security:
+#    securityKey: ${JWT_SECRET}
 
 server:
-  port: 8082
+  port: 8081
+  forward-headers-strategy: native
   servlet:
     session:
       timeout: 1440m
   max-http-header-size: 3145728
 
+logging:
+  level:
+    root: warn
+    org.mongodb.driver: warn
+    org.springframework: info
+    org.springframework.security: debug
+    com.ico.api: debug
+
+---
+
 spring:
-  profiles:
-    active: prod # 기본 활성화 프로파일
-    include:
-      - db
-      - mongodb
-      - login
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://database-1.cz4eukq2qs6a.ap-northeast-2.rds.amazonaws.com:3306/moneyvill
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME_PROD}
+    password: ${$DB_PASSWORD_PROD}
+  data:
+    mongodb:
+      uri: ${MONGODB_SRC_PROD}
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/money
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME_DEV}
+    password: ${DB_PASSWORD_DEV}
+  data:
+    mongodb:
+      uri: ${MONGODB_SRC_DEV}

@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/treasury-history")
+@RequestMapping("/api/treasury-history")
 public class TreasuryHistoryController {
 
     private final TreasuryHistoryService treasuryHistoryService;

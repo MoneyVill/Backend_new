@@ -27,7 +27,7 @@ import java.util.Map;
  * @author 서재건
  */
 @RestController
-@RequestMapping("/nation")
+@RequestMapping("/api/nation")
 @RequiredArgsConstructor
 public class NationController {
 
