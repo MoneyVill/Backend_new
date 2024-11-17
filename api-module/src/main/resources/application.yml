@@ -3,7 +3,7 @@ spring:
   config:
     import: file:.env[.properties]
   profiles:
-    active: prod # dev or prod
+    active: dev # dev or prod
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
@@ -12,8 +12,16 @@ spring:
       maximum-pool-size: 10
       idle-timeout: 30000
       minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
   security:
     securityKey: ${JWT_SECRET}
+
 
 server:
   port: 8081
@@ -45,6 +53,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_SRC_PROD}
+
 ---
 
 spring:
