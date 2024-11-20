@@ -43,7 +43,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.setAllowedOrigins(Arrays.asList("https://moneyvill-frontend.vercel.app")); // 프론트엔드 Origin 허용
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","https://moneyvill-frontend.vercel.app")); // 프론트엔드 Origin 허용
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","https://moneyvill-frontend.vercel.app","https://jungle-school.xyz")); // 프론트엔드 Origin 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용된 메서드
         configuration.setAllowedHeaders(Arrays.asList("*")); // 허용된 헤더
         configuration.setAllowCredentials(true); // 인증 관련 요청 허용
