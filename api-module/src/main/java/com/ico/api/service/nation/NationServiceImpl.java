@@ -329,6 +329,7 @@ public class NationServiceImpl implements NationService {
                     .nation(nation)
                     .title(data.getTitle())
                     .detail(data.getDetail())
+                    .answer(data.getAnswer())
                     .build();
             ruleRepository.save(rule);
         }

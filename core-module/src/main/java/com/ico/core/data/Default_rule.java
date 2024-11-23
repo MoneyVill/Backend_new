@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class Default_rule {
     private String title;
     private String detail;
+    private Boolean answer;
 }

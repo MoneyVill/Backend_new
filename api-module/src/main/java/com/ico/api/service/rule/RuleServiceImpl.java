@@ -63,6 +63,7 @@ public class RuleServiceImpl implements RuleService {
                 .nation(nation)
                 .title(dto.getTitle())
                 .detail(dto.getDetail())
+                .answer(dto.getAnswer())
                 .build();
 
         ruleRepository.save(rule);
@@ -80,7 +81,7 @@ public class RuleServiceImpl implements RuleService {
             throw new CustomException(ErrorCode.ALREADY_EXIST_TITLE);
         }
 
-        rule.updateRule(dto.getTitle(), dto.getDetail());
+        rule.updateRule(dto.getTitle(), dto.getDetail(), dto.getAnswer());
 
         ruleRepository.save(rule);
     }
