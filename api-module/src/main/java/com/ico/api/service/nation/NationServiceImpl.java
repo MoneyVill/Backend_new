@@ -14,35 +14,11 @@ import com.ico.core.data.Default_rule;
 import com.ico.core.data.Default_tax;
 import com.ico.core.dto.StockReqDto;
 import com.ico.core.document.DefaultNation;
-import com.ico.core.entity.Immigration;
-import com.ico.core.entity.Interest;
-import com.ico.core.entity.Invest;
-import com.ico.core.entity.Nation;
-import com.ico.core.entity.Rule;
-import com.ico.core.entity.Stock;
-import com.ico.core.entity.Student;
-import com.ico.core.entity.StudentJob;
-import com.ico.core.entity.StudentProduct;
-import com.ico.core.entity.Tax;
-import com.ico.core.entity.Teacher;
-import com.ico.core.entity.TeacherProduct;
+import com.ico.core.entity.*;
 import com.ico.core.document.TreasuryHistory;
 import com.ico.core.exception.CustomException;
 import com.ico.core.exception.ErrorCode;
-import com.ico.core.repository.DefaultNationRepository;
-import com.ico.core.repository.ImmigrationRepository;
-import com.ico.core.repository.InterestRepository;
-import com.ico.core.repository.InvestRepository;
-import com.ico.core.repository.NationRepository;
-import com.ico.core.repository.RuleRepository;
-import com.ico.core.repository.StockRepository;
-import com.ico.core.repository.StudentJobRepository;
-import com.ico.core.repository.StudentProductRepository;
-import com.ico.core.repository.StudentRepository;
-import com.ico.core.repository.TaxRepository;
-import com.ico.core.repository.TeacherProductRepository;
-import com.ico.core.repository.TeacherRepository;
-import com.ico.core.repository.TreasuryHistoryRepository;
+import com.ico.core.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,6 +55,7 @@ public class NationServiceImpl implements NationService {
     private final NationRepository nationRepository;
     private final TeacherRepository teacherRepository;
     private final StudentRepository studentRepository;
+    private final StockItemRepository stockItemRepository;
     private final StockRepository stockRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -205,31 +182,37 @@ public class NationServiceImpl implements NationService {
      *
      * @param stockReqDto 종목 정보
      */
-    @Transactional
     @Override
     public void createStock(HttpServletRequest request, StockReqDto stockReqDto) {
         Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
         Nation nation = nationRepository.findById(nationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NATION));
 
-        // 이미 주식 존재 여부 확인
-        if (nation.getStock() == null || nation.getStock().equals("")) {
-            // Nation에 주식 정보 업데이트
-            nation.updateStock(stockReqDto);
-            nationRepository.save(nation);
-
-            // 주식 가격, 이슈 등록
-            Stock stock = Stock.builder()
-                    .nation(nation)
-                    .amount(stockReqDto.getAmount())
-                    .content(stockReqDto.getContent())
-                    .date(LocalDateTime.now())
-                    .build();
-            stockRepository.save(stock);
-        } else {
+        // Check if the stock with the same name already exists
+        Optional<StockItem> existingStockItem = stockItemRepository.findByNameAndNationId(stockReqDto.getStock(), nationId);
+        if (existingStockItem.isPresent()) {
             throw new CustomException(ErrorCode.ALREADY_EXIST_STOCK);
         }
+
+        // Create new StockItem
+        StockItem stockItem = StockItem.builder()
+                .name(stockReqDto.getStock())
+                .nation(nation)
+                .tradingStart(stockReqDto.getTradingStart())
+                .tradingEnd(stockReqDto.getTradingEnd())
+                .build();
+        stockItemRepository.save(stockItem);
+
+        // Create initial Stock (price and content)
+        Stock stock = Stock.builder()
+                .stockItem(stockItem)
+                .amount(stockReqDto.getAmount())
+                .content(stockReqDto.getContent())
+                .date(LocalDateTime.now())
+                .build();
+        stockRepository.save(stock);
     }
+
 
     @Override
     public Map<String, String> findTreasury(HttpServletRequest request) {
@@ -262,13 +245,21 @@ public class NationServiceImpl implements NationService {
     public void updateTradingTime(HttpServletRequest request, TradingTimeReqDto dto) {
         Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
 
-        Nation nation = nationRepository.findById(nationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NATION_NOT_FOUND));
+        // Retrieve the StockItem
+        StockItem stockItem = stockItemRepository.findById(dto.getStockItemId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_STOCK));
 
-        nation.setTrading_start(dto.getTradingStart());
-        nation.setTrading_end(dto.getTradingEnd());
-        nationRepository.save(nation);
+        // Verify that the StockItem belongs to the Nation
+        if (!stockItem.getNation().getId().equals(nationId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
+        }
+
+        // Update trading times
+        stockItem.setTradingStart(dto.getTradingStart());
+        stockItem.setTradingEnd(dto.getTradingEnd());
+        stockItemRepository.save(stockItem);
     }
+
 
     /**
      * 나라 생성 후 기본 데이터 추가
@@ -373,9 +364,15 @@ public class NationServiceImpl implements NationService {
         }
 
         // Stock
-        List<Stock> stocks = stockRepository.findAllByNationId(nationId);
+        List<Stock> stocks = stockRepository.findAllByStockItem_Nation_Id(nationId);
         if (!stocks.isEmpty()) {
             stockRepository.deleteAll(stocks);
+        }
+
+        // StockItem
+        List<StockItem> stockItems = stockItemRepository.findAllByNationId(nationId);
+        if (!stockItems.isEmpty()) {
+            stockItemRepository.deleteAll(stockItems);
         }
 
         // StudentJob
@@ -403,7 +400,7 @@ public class NationServiceImpl implements NationService {
         }
 
         // Invest
-        List<Invest> invests = investRepository.findAllByNationId(nationId);
+        List<Invest> invests = investRepository.findAllByStudent_Nation_Id(nationId);
         if (!invests.isEmpty()) {
             investRepository.deleteAll(invests);
         }
@@ -414,13 +411,14 @@ public class NationServiceImpl implements NationService {
             interestRepository.deleteAll(interests);
         }
 
-        // TreasuryHistory(MongoDB)
+        // TreasuryHistory (MongoDB)
         List<TreasuryHistory> treasuryHistories = treasuryHistoryRepository.findAllByNationId(nationId);
         if (!treasuryHistories.isEmpty()) {
             treasuryHistoryRepository.deleteAll(treasuryHistories);
         }
 
-        // 연관관계 매핑을 모두 끊고 마지막에 삭제
+        // Delete Nation
         nationRepository.delete(nation);
     }
+
 }

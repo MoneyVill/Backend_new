@@ -1,5 +1,6 @@
 package com.ico.api.controller;
 
+import com.ico.api.dto.stock.StockItemResDto;
 import com.ico.api.dto.stock.StockStudentResDto;
 import com.ico.api.dto.stock.StockTeacherResDto;
 import com.ico.api.dto.stock.StockUploadReqDto;
@@ -7,15 +8,11 @@ import com.ico.api.service.stock.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  *
@@ -31,9 +28,9 @@ public class StockController {
      * 교사의 투자 이슈 조회
      * @return 투자 이슈 정보, 투자 종목 정보(거래가능시간, 이름)
      */
-    @GetMapping("/teacher")
-    public ResponseEntity<StockTeacherResDto> stockIssueTeacher(HttpServletRequest request){
-        return ResponseEntity.ok(stockService.getIssueTeacher(request));
+    @GetMapping("/teacher/{stockItemId}")
+    public ResponseEntity<StockTeacherResDto> stockIssueTeacher(HttpServletRequest request, @PathVariable Long stockItemId) {
+        return ResponseEntity.ok(stockService.getIssueTeacher(request, stockItemId));
     }
 
     /**
@@ -42,18 +39,18 @@ public class StockController {
      * @return Httpstatus
      */
     @PostMapping("/teacher/upload")
-    public ResponseEntity<HttpStatus> uploadIssue(HttpServletRequest request, @Valid @RequestBody StockUploadReqDto dto){
+    public ResponseEntity<Void> uploadIssue(HttpServletRequest request, @Valid @RequestBody StockUploadReqDto dto) {
         stockService.uploadIssue(request, dto);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     /**
      * 학생의 투자이슈 조회
      * @return 투자 이슈
      */
-    @GetMapping("/student")
-    public ResponseEntity<StockStudentResDto> stockIssueStudent(HttpServletRequest request){
-        return ResponseEntity.ok(stockService.getIssueStudent(request));
+    @GetMapping("/student/{stockItemId}")
+    public ResponseEntity<StockStudentResDto> stockIssueStudent(HttpServletRequest request, @PathVariable Long stockItemId) {
+        return ResponseEntity.ok(stockService.getIssueStudent(request, stockItemId));
     }
 
     /**
@@ -62,10 +59,25 @@ public class StockController {
      * @param request
      * @return
      */
-    @DeleteMapping("/teacher")
-    public ResponseEntity<HttpStatus> deleteStock(HttpServletRequest request){
-        stockService.deleteStock(request);
-        return ResponseEntity.ok(HttpStatus.OK);
+    @DeleteMapping("/teacher/{stockItemId}")
+    public ResponseEntity<Void> deleteStock(HttpServletRequest request, @PathVariable Long stockItemId) {
+        stockService.deleteStock(request, stockItemId);
+        return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/student/items")
+    public ResponseEntity<List<StockItemResDto>> getStockItems(HttpServletRequest request) {
+        return ResponseEntity.ok(stockService.getStockItems(request));
+    }
+
+    /**
+     * 투자 종목 목록 조회
+     *
+     * @param request
+     * @return 투자 종목 목록
+     */
+    @GetMapping("/items")
+    public ResponseEntity<List<StockItemResDto>> getAllStocks(HttpServletRequest request) {
+        return ResponseEntity.ok(stockService.getAllStocks(request));
+    }
 }

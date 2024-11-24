@@ -18,6 +18,9 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 public class InvestReqDto {
+    @NotNull(message = "713")
+    private Long stockItemId;
+
     @NotNull(message = "714")
     private Double price;
 
@@ -26,7 +29,8 @@ public class InvestReqDto {
     private Integer amount;
 
     @Builder
-    public InvestReqDto(Double price, Integer amount) {
+    public InvestReqDto(Long stockItemId, Double price, Integer amount) {
+        this.stockItemId = stockItemId;
         this.price = price;
         this.amount = amount;
     }

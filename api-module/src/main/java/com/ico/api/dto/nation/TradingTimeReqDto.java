@@ -15,6 +15,9 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 public class TradingTimeReqDto {
+    @NotNull(message = "703")
+    private Long stockItemId;
+
     @NotNull(message = "709")
     private LocalTime tradingStart;
 

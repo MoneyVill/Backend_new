@@ -15,25 +15,26 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class StockStudentResDto {
-    private String stock;
-
+    private Long stockItemId;
+    private String stockName;
     private int account;
-
+    private String stock;
     private LocalTime tradingStart;
-
     private LocalTime tradingEnd;
-
     private StockMyResDto myStock;
-
     private List<StockColDto> issue;
 
     @Builder
-    public StockStudentResDto(String stock, int account, LocalTime tradingStart, LocalTime tradingEnd, StockMyResDto myStock, List<StockColDto> issue) {
-        this.stock = stock;
+    public StockStudentResDto(Long stockItemId, String stockName, int account, String stock, LocalTime tradingStart,
+                              LocalTime tradingEnd, StockMyResDto myStock, List<StockColDto> issue) {
+        this.stockItemId = stockItemId;
+        this.stockName = stockName;
         this.account = account;
+        this.stock = stock;
         this.tradingStart = tradingStart;
         this.tradingEnd = tradingEnd;
         this.myStock = myStock;
         this.issue = issue;
     }
 }
+

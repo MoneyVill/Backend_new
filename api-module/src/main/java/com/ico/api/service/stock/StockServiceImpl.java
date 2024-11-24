@@ -1,23 +1,13 @@
 package com.ico.api.service.stock;
 
-import com.ico.api.dto.stock.StockColDto;
-import com.ico.api.dto.stock.StockMyResDto;
-import com.ico.api.dto.stock.StockStudentResDto;
-import com.ico.api.dto.stock.StockTeacherResDto;
-import com.ico.api.dto.stock.StockUploadReqDto;
+import com.ico.api.dto.stock.*;
 import com.ico.api.service.transaction.TransactionService;
 import com.ico.api.user.JwtTokenProvider;
 import com.ico.api.util.Formatter;
-import com.ico.core.entity.Invest;
-import com.ico.core.entity.Nation;
-import com.ico.core.entity.Stock;
-import com.ico.core.entity.Student;
+import com.ico.core.entity.*;
 import com.ico.core.exception.CustomException;
 import com.ico.core.exception.ErrorCode;
-import com.ico.core.repository.InvestRepository;
-import com.ico.core.repository.NationRepository;
-import com.ico.core.repository.StockRepository;
-import com.ico.core.repository.StudentRepository;
+import com.ico.core.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 투지 이슈 Service
@@ -43,6 +34,7 @@ public class StockServiceImpl implements StockService{
     private final InvestRepository investRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final TransactionService transactionService;
+    private final StockItemRepository stockItemRepository;
 
     /**
      * 교사 투자 이슈 목록 조회
@@ -50,65 +42,81 @@ public class StockServiceImpl implements StockService{
      * @return 교사화면의 투자 이슈 정보
      */
     @Override
-    public StockTeacherResDto getIssueTeacher(HttpServletRequest request) {
+    public StockTeacherResDto getIssueTeacher(HttpServletRequest request, Long stockItemId) {
         Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
-        // 국가 정보, 투자 종목 여부 유효성 검사
-        Nation nation = validCheckNationStock(nationId);
 
-        // 반환값
-        StockTeacherResDto res = new StockTeacherResDto();
-        res.setStock(nation.getStock());
-        res.setTradingStart(nation.getTrading_start());
-        res.setTradingEnd(nation.getTrading_end());
-        res.setIssue(getIssues(nationId));
+        // Retrieve StockItem
+        StockItem stockItem = stockItemRepository.findById(stockItemId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_STOCK));
 
-        return res;
+        // Verify that the StockItem belongs to the Nation
+        if (!stockItem.getNation().getId().equals(nationId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
+        }
+
+        // Retrieve issues for the StockItem
+        List<StockColDto> issues = getIssues(stockItemId);
+
+        // Build response
+        return StockTeacherResDto.builder()
+                .stock(stockItem.getName())
+                .tradingStart(stockItem.getTradingStart())
+                .tradingEnd(stockItem.getTradingEnd())
+                .issue(issues)
+                .build();
     }
+
 
     /**
      * 학생 투자 이슈 목록 조회
      * @return 학생 화면의 투자 이슈 정보
      */
     @Override
-    public StockStudentResDto getIssueStudent(HttpServletRequest request) {
+    public StockStudentResDto getIssueStudent(HttpServletRequest request, Long stockItemId) {
         String token = jwtTokenProvider.parseJwt(request);
         Long nationId = jwtTokenProvider.getNation(token);
         Long studentId = jwtTokenProvider.getId(token);
 
-        // 국가 정보, 투자 종목 여부 유효성 검사
-        Nation nation = validCheckNationStock(nationId);
+        // Retrieve StockItem
+        StockItem stockItem = stockItemRepository.findById(stockItemId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_STOCK));
+
+        // Verify that the StockItem belongs to the Nation
+        if (!stockItem.getNation().getId().equals(nationId)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
+        }
 
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Optional<Invest> invest = investRepository.findByStudentId(studentId);
+        Optional<Invest> invest = investRepository.findByStudentIdAndStockItemId(studentId, stockItemId);
         log.info("매수 여부 확인");
 
         StockMyResDto myStock = new StockMyResDto();
         log.info("학생 매수 정보");
 
-        if(invest.isPresent()){
+        if (invest.isPresent()) {
             log.info("매수 이력 있음");
             myStock.setPrice(invest.get().getPrice());
             myStock.setAmount(invest.get().getAmount());
-        }
-        else{
+        } else {
             log.info("매수 이력 없음");
             myStock.setPrice(0);
             myStock.setAmount(0);
         }
 
-        // 반환값
+        // Build response
         StockStudentResDto res = new StockStudentResDto();
         res.setAccount(student.getAccount());
-        res.setStock(nation.getStock());
-        res.setTradingStart(nation.getTrading_start());
-        res.setTradingEnd(nation.getTrading_end());
+        res.setStock(stockItem.getName());
+        res.setTradingStart(stockItem.getTradingStart());
+        res.setTradingEnd(stockItem.getTradingEnd());
         res.setMyStock(myStock);
-        res.setIssue(getIssues(nationId));
+        res.setIssue(getIssues(stockItemId));
 
         return res;
     }
+
 
     /**
      * 투자 이슈 등록
@@ -117,39 +125,36 @@ public class StockServiceImpl implements StockService{
     @Override
     public void uploadIssue(HttpServletRequest request, StockUploadReqDto dto) {
         Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
-        Nation nation = nationRepository.findById(nationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NATION_NOT_FOUND));
 
-        if(nation.getStock() == null || nation.getStock().equals("")){
-            log.info("투자 종목이 생성되지 않았습니다.");
+        // Retrieve StockItem
+        StockItem stockItem = stockItemRepository.findById(dto.getStockItemId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_STOCK));
+
+        // Check if StockItem belongs to Nation
+        if (!stockItem.getNation().getId().equals(nationId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
         }
 
-//        if(nation.getTrading_start().isAfter(LocalTime.now()) && nation.getTrading_end().isBefore(LocalTime.now())){
-//            log.info("거래시간에는 투자 이슈 등록이 불가능합니다.");
-//            throw new CustomException(ErrorCode.NOT_UPLOAD_TIME);
-//        }
-
+        // Calculate new price
         double value = dto.getPrice();
-
-        if(dto.getAmount() > 0){
+        if (dto.getAmount() > 0) {
             value += dto.getAmount() / 100.0 * value;
-        }
-        else{
+        } else {
             value -= Math.abs(dto.getAmount()) / 100.0 * value;
         }
+        double res = Math.round(value * 100.0) / 100.0;
 
-        double res = Math.round(value * 100.0)/100.0;
-        // 투지 이슈 등록
+        // Save new issue
         Stock stock = Stock.builder()
                 .date(LocalDateTime.now())
                 .amount(res)
                 .content(dto.getContent())
-                .nation(nation)
+                .stockItem(stockItem)
                 .build();
         stockRepository.save(stock);
 
     }
+
 
     /**
      * 투자 종목 삭제
@@ -157,27 +162,33 @@ public class StockServiceImpl implements StockService{
      * @param request
      */
     @Override
-    public void deleteStock(HttpServletRequest request) {
+    public void deleteStock(HttpServletRequest request, Long stockItemId) {
         Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
 
-        //국가 유효성 확인 & 주식 존재 여부 확인
-        Nation nation = validCheckNationStock(nationId);
+        // Retrieve StockItem
+        StockItem stockItem = stockItemRepository.findById(stockItemId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_STOCK));
 
-        // 학생들의 투자 내역
-        List<Invest> invests = investRepository.findAllByNationId(nationId);
-
-        // 가장 최신 주식 데이터 구하기
-        List<Stock> stockList = stockRepository.findAllByNationIdOrderByIdDesc(nationId);
-        if(stockList.isEmpty()){
+        // Verify that the StockItem belongs to the Nation
+        if (!stockItem.getNation().getId().equals(nationId)) {
             throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
         }
 
-        // 최신 지수
+        // Retrieve investments for the StockItem
+        List<Invest> invests = investRepository.findAllByStockItemId(stockItemId);
+
+        // Get the latest stock data
+        List<Stock> stockList = stockRepository.findAllByStockItemIdOrderByIdDesc(stockItemId);
+        if (stockList.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
+        }
+
+        // Latest price
         double price = stockList.get(0).getAmount();
         log.info("매도지수 : " + price);
 
-        // 학생들 매도 일괄 처리
-        for(Invest invest : invests){
+        // Process students' sell orders
+        for (Invest invest : invests) {
             long studentId = invest.getStudent().getId();
             Student student = studentRepository.findById(studentId)
                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -192,54 +203,55 @@ public class StockServiceImpl implements StockService{
             int salePrice = (int) (amount + amount * changeRate);
             log.info("매도 이익 : " + salePrice);
 
-            // 매도 금액 입금
+            // Deposit sale amount to student's account
             student.setAccount(student.getAccount() + salePrice);
             studentRepository.save(student);
 
-            // 거래 내역 기록
+            // Record transaction
             StringBuilder title = new StringBuilder("수익률 : ");
-            title.append((int)(changeRate * 100)).append("%");
-            transactionService.addTransactionDeposit(studentId, nation.getTitle()+" 증권", salePrice, String.valueOf(title));
+            title.append((int) (changeRate * 100)).append("%");
+            transactionService.addTransactionDeposit(studentId, stockItem.getName() + " 증권", salePrice, title.toString());
 
-            // 매수 이력 삭제
+            // Delete investment record
             investRepository.delete(invest);
         }
 
+        // Delete stock data
         stockRepository.deleteAll(stockList);
 
-        // 나라의 투자 정보 삭제
-        nation.setTrading_end(null);
-        nation.setTrading_start(null);
-        nation.setStock(null);
-        nationRepository.save(nation);
+        // Delete the StockItem
+        stockItemRepository.delete(stockItem);
     }
+
 
     /**
      * 국가 정보, 투자 종목 여부 검사
      * @param nationId 국가ID
      * @return 국가 객체
      */
-    private Nation validCheckNationStock(Long nationId){
+    private Nation validCheckNationStock(Long nationId) {
         Nation nation = nationRepository.findById(nationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NATION_NOT_FOUND));
 
-        // 투자 종목이 없을 시
-        if(nation.getStock() == null || nation.getStock().equals("")){
+        // Check if there are any StockItems associated with the Nation
+        List<StockItem> stockItems = stockItemRepository.findAllByNationId(nationId);
+        if (stockItems.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_FOUND_STOCK);
         }
 
         return nation;
     }
 
+
     /**
      * 투자 이슈 목록
-     * @param nationId 국가ID
+     * @param stockItemId
      * @return 투자 이슈 목록 조회
      */
-    private List<StockColDto> getIssues(Long nationId){
+    private List<StockColDto> getIssues(Long stockItemId){
         List<StockColDto> issuesRes = new ArrayList<>();
-        List<Stock> issues = stockRepository.findAllByNationIdOrderByIdDesc(nationId);
-        for(Stock issue : issues){
+        List<Stock> issues = stockRepository.findAllByStockItemIdOrderByIdDesc(stockItemId);
+        for (Stock issue : issues) {
             StockColDto col = new StockColDto();
             col.setContent(issue.getContent());
             col.setAmount(issue.getAmount());
@@ -250,6 +262,39 @@ public class StockServiceImpl implements StockService{
         return issuesRes;
     }
 
+    @Override
+    public List<StockItemResDto> getStockItems(HttpServletRequest request) {
+        Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
+
+        List<StockItem> stockItems = stockItemRepository.findAllByNationId(nationId);
+        return stockItems.stream()
+                .map(stockItem -> StockItemResDto.builder()
+                        .id(stockItem.getId())
+                        .name(stockItem.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 투자 목록 조회
+     */
+    @Override
+    public List<StockItemResDto> getAllStocks(HttpServletRequest request) {
+        Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
+
+        // 해당 나라의 모든 투자 종목 조회
+        List<StockItem> stockItems = stockItemRepository.findAllByNationId(nationId);
+
+        // StockItemResDto로 변환하여 반환
+        return stockItems.stream()
+                .map(stockItem -> StockItemResDto.builder()
+                        .id(stockItem.getId())
+                        .name(stockItem.getName())
+                        .tradingStart(stockItem.getTradingStart())
+                        .tradingEnd(stockItem.getTradingEnd())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
 }
 
