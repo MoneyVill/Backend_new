@@ -14,6 +14,9 @@ import javax.validation.constraints.NotNull;
 @Getter
 @NoArgsConstructor
 public class StockUploadReqDto {
+    @NotNull(message = "710")
+    private Long stockItemId;
+
     @NotNull(message = "711")
     private Integer amount;
 
@@ -24,7 +27,8 @@ public class StockUploadReqDto {
     private Double price;
 
     @Builder
-    public StockUploadReqDto(Integer amount, String content, Double price) {
+    public StockUploadReqDto(Long stockItemId, Integer amount, String content, Double price) {
+        this.stockItemId = stockItemId;
         this.amount = amount;
         this.content = content;
         this.price = price;

@@ -2,15 +2,12 @@ package com.ico.api.controller;
 
 
 import com.ico.api.service.stock.InvestService;
+import com.ico.api.service.stock.StockService;
 import com.ico.core.dto.InvestReqDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -32,9 +29,9 @@ public class InvestController {
      * @return Httpstatus
      */
     @PostMapping("/student")
-    public ResponseEntity<HttpStatus> buyStock(HttpServletRequest request, @Valid @RequestBody InvestReqDto dto) {
-        investService.buyStock(request, dto.getPrice(), dto.getAmount());
-        return ResponseEntity.ok(HttpStatus.OK);
+    public ResponseEntity<Void> buyStock(HttpServletRequest request, @Valid @RequestBody InvestReqDto dto) {
+        investService.buyStock(request, dto.getStockItemId(), dto.getPrice(), dto.getAmount());
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -42,10 +39,10 @@ public class InvestController {
      *
      * @return Httpstatus
      */
-    @DeleteMapping("/student")
-    public ResponseEntity<HttpStatus> sellStock(HttpServletRequest request) {
-        investService.sellStock(request);
-        return ResponseEntity.ok(HttpStatus.OK);
+    @DeleteMapping("/student/{stockItemId}")
+    public ResponseEntity<Void> sellStock(HttpServletRequest request, @PathVariable Long stockItemId) {
+        investService.sellStock(request, stockItemId);
+        return ResponseEntity.ok().build();
     }
 
 

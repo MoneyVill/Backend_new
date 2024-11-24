@@ -22,28 +22,27 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class Stock {
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nation_id")
-    private Nation nation;
+    @ManyToOne
+    @JoinColumn(name = "stock_item_id")
+    private StockItem stockItem;
 
-    private double amount;
+    private double amount; // Price or value
 
-    private String content;
+    private String content; // Issue content
 
     private LocalDateTime date;
 
     @Builder
-    public Stock(Long id, Nation nation, double amount, String content, LocalDateTime date) {
+    public Stock(Long id, StockItem stockItem, double amount, String content, LocalDateTime date) {
         this.id = id;
-        this.nation = nation;
+        this.stockItem = stockItem;
         this.amount = amount;
         this.content = content;
         this.date = date;
     }
-
-
 }
+

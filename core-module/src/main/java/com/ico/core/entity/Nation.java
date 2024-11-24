@@ -7,6 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * 나라 Entity
@@ -49,11 +50,8 @@ public class Nation {
     @ColumnDefault("0")
     private int treasury;
 
-    private String stock;
-
-    private LocalTime trading_start;
-
-    private LocalTime trading_end;
+    @OneToMany(mappedBy = "nation", cascade = CascadeType.ALL)
+    private List<StockItem> stockItems;
 
     @ColumnDefault("50")
     private byte credit_up;
@@ -61,16 +59,6 @@ public class Nation {
     @ColumnDefault("20")
     private byte credit_down;
 
-    /**
-     * 주식 종목 수정 시 처리하는 메소드
-     * @param dto 종목 정보
-     */
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public void updateStock(StockReqDto dto){
-        this.stock = dto.getStock();
-        this.trading_start = dto.getTradingStart();
-        this.trading_end = dto.getTradingEnd();
-    }
 
     /**
      * 신용점수 등락폭 수정
