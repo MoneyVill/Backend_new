@@ -1,7 +1,6 @@
 package com.ico.api.service.student;
 
 import com.ico.api.dto.nation.CreditScoreReqDto;
-import com.ico.api.dto.student.StudentAllResDto;
 import com.ico.api.dto.student.StudentListResDto;
 import com.ico.api.dto.student.StudentMyPageResDto;
 import com.ico.api.dto.student.StudentResDto;
@@ -267,13 +266,13 @@ public class StudentServiceImpl implements StudentService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<StudentAllResDto> findListStudent(HttpServletRequest request) {
-        Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
+    public List<StudentListResDto> findListStudent(Long nationId) {
+//        Long nationId = jwtTokenProvider.getNation(jwtTokenProvider.parseJwt(request));
 
         List<Student> studentList = studentRepository.findAllByNationIdOrderByNumberAsc(nationId);
-        List<StudentAllResDto> dtoList = new ArrayList<>();
+        List<StudentListResDto> dtoList = new ArrayList<>();
         for (Student student : studentList) {
-            dtoList.add(new StudentAllResDto().of(student, student.getStudentJob()));
+            dtoList.add(new StudentListResDto().of(student));
         }
         return dtoList;
     }

@@ -1,7 +1,6 @@
 package com.ico.api.controller;
 
 import com.ico.api.dto.nation.CreditScoreReqDto;
-import com.ico.api.dto.student.StudentAllResDto;
 import com.ico.api.dto.student.StudentListResDto;
 import com.ico.api.dto.student.StudentMyPageResDto;
 import com.ico.api.dto.student.StudentResDto;
@@ -132,8 +131,8 @@ public class StudentController {
      * @return
      */
     @GetMapping("/student")
-    public ResponseEntity<List<StudentAllResDto>> findListStudent(HttpServletRequest request) {
-        return ResponseEntity.ok(studentService.findListStudent(request));
+    public ResponseEntity<List<StudentListResDto>> findListStudent(Long nationId) {
+        return ResponseEntity.ok(studentService.findListStudent(nationId));
     }
 
     /**

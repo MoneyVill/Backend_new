@@ -77,10 +77,10 @@ public interface StudentService {
     /**
      * 학생의 반 친구 목록 조회
      *
-     * @param request
+//     * @param request
      * @return
      */
-    List<StudentAllResDto> findListStudent(HttpServletRequest request);
+    List<StudentListResDto> findListStudent(Long nationId);
 
     /**
      * 학생의 신용등급 조회
