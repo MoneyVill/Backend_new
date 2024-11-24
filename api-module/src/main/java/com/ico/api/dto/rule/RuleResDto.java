@@ -22,11 +22,14 @@ public class RuleResDto {
 
     private String dateTime;
 
+    private Boolean answer;
+
     @Builder
-    public RuleResDto(Long id, String title, String detail, String dateTime) {
+    public RuleResDto(Long id, String title, String detail, Boolean answer, String dateTime) {
         this.id = id;
         this.title = title;
         this.detail = detail;
+        this.answer = answer;
         this.dateTime = dateTime;
     }
 
@@ -40,6 +43,7 @@ public class RuleResDto {
                 .id(rule.getId())
                 .title(rule.getTitle())
                 .detail(rule.getDetail())
+                .answer(rule.getAnswer())
                 .dateTime(dateTime)
                 .build();
     }

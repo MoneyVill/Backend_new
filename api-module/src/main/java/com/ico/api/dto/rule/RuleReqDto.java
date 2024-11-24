@@ -23,9 +23,12 @@ public class RuleReqDto {
     @NotBlank(message = "403")
     private String detail;
 
+    private Boolean answer;
+
     @Builder
-    public RuleReqDto(String title, String detail) {
+    public RuleReqDto(String title, String detail, Boolean answer) {
         this.title = title;
         this.detail = detail;
+        this.answer = answer;
     }
 }

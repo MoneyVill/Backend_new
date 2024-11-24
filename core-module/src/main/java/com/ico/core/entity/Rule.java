@@ -41,15 +41,18 @@ public class Rule {
     @Column(length = 1023)
     private String detail;
 
+    private Boolean answer;
+
     @LastModifiedDate
     private LocalDateTime dateTime;
 
     @Builder
-    public Rule(Long id, Nation nation, String title, String detail) {
+    public Rule(Long id, Nation nation, String title, String detail, Boolean answer) {
         this.id = id;
         this.nation = nation;
         this.title = title;
         this.detail = detail;
+        this.answer = answer;
     }
 
     /**
@@ -58,8 +61,9 @@ public class Rule {
      * @param title
      * @param detail
      */
-    public void updateRule(String title, String detail) {
+    public void updateRule(String title, String detail, Boolean answer) {
         this.title = title;
         this.detail = detail;
+        this.answer = answer;
     }
 }
